@@ -1,5 +1,4 @@
 pub mod common;
-pub mod kopt;
+pub mod solvers;
 pub mod metrizable;
-pub mod nn;
 pub mod point;

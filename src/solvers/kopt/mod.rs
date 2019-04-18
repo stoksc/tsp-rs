@@ -15,7 +15,7 @@ impl<T: Metrizable + Clone + Borrow<T>> Path<T> {
         let mut previous_length: f64 = std::f64::MAX;
         let start_time = time::Instant::now();
         loop {
-            match crate::kopt::two_opt(&mut self.path) {
+            match two_opt(&mut self.path) {
                 Some(x) => {
                     iter_without_impr = 0;
                     previous_length = x;
@@ -24,7 +24,7 @@ impl<T: Metrizable + Clone + Borrow<T>> Path<T> {
                     iter_without_impr += 1;
                     if iter_without_impr < max_iter {
                         iter_without_impr = 0;
-                        crate::kopt::n_opt(4, &mut self.path, previous_length);
+                        n_opt(4, &mut self.path, previous_length);
                     }
                 }
             }
