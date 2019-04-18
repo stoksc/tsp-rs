@@ -1,6 +1,6 @@
+mod kopt;
 pub mod point;
 
-use itertools::Itertools;
 use rand::Rng;
 use std::borrow::Borrow;
 use std::collections::HashSet;
@@ -66,7 +66,7 @@ impl<T: Metrizable + Clone + Borrow<T>> Path<T> {
         let mut previous_length: f64 = std::f64::MAX;
         let start_time = time::Instant::now();
         loop {
-            match two_opt(&mut self.path) {
+            match crate::kopt::two_opt(&mut self.path) {
                 Some(x) => {
                     iter_without_impr = 0;
                     previous_length = x;
@@ -75,7 +75,7 @@ impl<T: Metrizable + Clone + Borrow<T>> Path<T> {
                     iter_without_impr += 1;
                     if iter_without_impr < MAX_ITER_WITHOUT_IMPR {
                         iter_without_impr = 0;
-                        n_opt(4, &mut self.path, previous_length);
+                        crate::kopt::n_opt(4, &mut self.path, previous_length);
                     }
                 }
             }
@@ -116,55 +116,6 @@ impl<T: Metrizable + Clone + Borrow<T>> Path<T> {
         self.len = length(&path);
         self.path = path;
     }
-}
-
-#[inline]
-pub fn two_opt<T>(v: &mut Vec<T>) -> Option<f64>
-where
-    T: Metrizable,
-{
-    let p1: usize = rand::thread_rng().gen_range(0, v.len());
-    let p2: usize = rand::thread_rng().gen_range(0, v.len());
-
-    if p1 == p2 {
-        return None;
-    }
-
-    let prev_len = length(&v);
-    v.swap(p1, p2);
-
-    if length(&v) < prev_len {
-        Some(prev_len - length(&v))
-    } else {
-        v.swap(p1, p2);
-        None
-    }
-}
-
-#[inline]
-pub fn n_opt<T>(n: usize, v: &mut Vec<T>, l: f64) -> Option<f64>
-where
-    T: Metrizable,
-{
-    let s = v.len();
-    let mut unq_points: HashSet<usize> = HashSet::new();
-    while unq_points.len() < n {
-        let p: usize = rand::thread_rng().gen_range(0, s);
-        unq_points.insert(p);
-    }
-    let mut swapped = Vec::new();
-    for (p1, p2) in unq_points.iter().tuples() {
-        swapped.push((p1.clone(), p2.clone()));
-        v.swap(*p1, *p2);
-    }
-    let nl: f64 = length(v);
-    if nl > l {
-        for (p1, p2) in swapped.iter().rev() {
-            v.swap(*p2, *p1);
-        }
-        return None;
-    }
-    return Some(nl);
 }
 
 #[inline]
