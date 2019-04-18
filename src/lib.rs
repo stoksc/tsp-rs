@@ -1,3 +1,5 @@
+pub mod point;
+
 use itertools::Itertools;
 use rand::Rng;
 use std::borrow::Borrow;
@@ -17,6 +19,7 @@ pub trait Metrizable {
     {
         let mut nearest = std::f64::MAX;
         let mut nearest_node = None;
+
         for other in others {
             let dist = self.distance(&other.value);
             if dist < nearest && !visited.contains(&other.index) {
@@ -24,6 +27,7 @@ pub trait Metrizable {
                 nearest_node = Some(other);
             }
         }
+
         if let Some(nearest_node) = nearest_node {
             visited.insert(nearest_node.index);
             Some(nearest_node.value)
@@ -37,24 +41,6 @@ pub trait Metrizable {
 pub struct IndexedT<T> {
     index: usize,
     value: T,
-}
-
-#[derive(Debug, Clone, PartialEq, PartialOrd)]
-pub struct Point {
-    x: f64,
-    y: f64,
-}
-
-impl Point {
-    pub fn new(x: f64, y: f64) -> Point {
-        Point { x, y }
-    }
-}
-
-impl Metrizable for Point {
-    fn distance(&self, other: &Point) -> f64 {
-        return ((self.x - other.x).powf(2.) + (self.y - other.y).powf(2.)).sqrt();
-    }
 }
 
 #[derive(Debug, Clone, PartialEq)]

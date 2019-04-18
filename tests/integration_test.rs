@@ -1,7 +1,6 @@
 use std::fs::File;
 use std::io::Read;
 use std::time;
-use tsp::Point;
 
 const TEST_DATA_FILENAME: &str = "tests/data/b52.tsp";
 const DEFAULT_TIMEOUT: u64 = 1;
@@ -31,7 +30,7 @@ fn test_solve_nn() {
     println!("solve_nn on {} had length {}", TEST_DATA_FILENAME, path.len);
 }
 
-fn parse_tsp_file(filename: &String) -> Vec<tsp::Point> {
+fn parse_tsp_file(filename: &String) -> Vec<tsp::point::Point> {
     let mut f = File::open(filename).expect("Failed to open test data file");
     let mut contents = String::new();
     f.read_to_string(&mut contents)
@@ -49,7 +48,7 @@ fn parse_tsp_file(filename: &String) -> Vec<tsp::Point> {
             Some(x) => x.trim().parse().expect("Failed to parse point"),
             None => panic!("Not enough data to parse point"),
         };
-        let point = Point::new(parse_next_float(), parse_next_float());
+        let point = tsp::point::Point::new(parse_next_float(), parse_next_float());
         results.push(point);
     }
     results
