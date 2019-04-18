@@ -5,7 +5,7 @@ use std::time;
 use itertools::Itertools;
 use rand::Rng;
 
-use crate::common::{self, Path};
+use crate::common::Path;
 use crate::metrizable::Metrizable;
 
 impl<T: Metrizable + Clone + Borrow<T>> Path<T> {
@@ -15,7 +15,7 @@ impl<T: Metrizable + Clone + Borrow<T>> Path<T> {
         let mut previous_length: f64 = std::f64::MAX;
         let start_time = time::Instant::now();
         loop {
-            match two_opt(&mut self.path) {
+            match two_opt(self) {
                 Some(x) => {
                     iter_without_impr = 0;
                     previous_length = x;
@@ -24,7 +24,7 @@ impl<T: Metrizable + Clone + Borrow<T>> Path<T> {
                     iter_without_impr += 1;
                     if iter_without_impr < max_iter {
                         iter_without_impr = 0;
-                        n_opt(4, &mut self.path, previous_length);
+                        n_opt(4, self, previous_length);
                     }
                 }
             }
@@ -32,39 +32,39 @@ impl<T: Metrizable + Clone + Borrow<T>> Path<T> {
                 break;
             }
         }
-        self.len = common::length(&self.path);
     }
 }
 
 #[inline]
-pub fn two_opt<T>(v: &mut Vec<T>) -> Option<f64>
+pub fn two_opt<T>(path: &mut Path<T>) -> Option<f64>
 where
-    T: Metrizable,
+    T: Metrizable + Clone,
 {
-    let p1: usize = rand::thread_rng().gen_range(0, v.len());
-    let p2: usize = rand::thread_rng().gen_range(0, v.len());
+    let p1: usize = rand::thread_rng().gen_range(0, path.path.len());
+    let p2: usize = rand::thread_rng().gen_range(0, path.path.len());
 
     if p1 == p2 {
         return None;
     }
 
-    let prev_len = common::length(&v);
-    v.swap(p1, p2);
+    let prev_len = path.path_len();
+    path.path.swap(p1, p2);
+    let post_len = path.path_len();
 
-    if common::length(&v) < prev_len {
-        Some(prev_len - common::length(&v))
+    if post_len < prev_len {
+        Some(prev_len - post_len)
     } else {
-        v.swap(p1, p2);
+        path.path.swap(p1, p2);
         None
     }
 }
 
 #[inline]
-pub fn n_opt<T>(n: usize, v: &mut Vec<T>, l: f64) -> Option<f64>
+pub fn n_opt<T>(n: usize, path: &mut Path<T>, l: f64) -> Option<f64>
 where
-    T: Metrizable,
+    T: Metrizable + Clone,
 {
-    let s = v.len();
+    let s = path.path.len();
     let mut unq_points: HashSet<usize> = HashSet::new();
     while unq_points.len() < n {
         let p: usize = rand::thread_rng().gen_range(0, s);
@@ -73,12 +73,12 @@ where
     let mut swapped = Vec::new();
     for (p1, p2) in unq_points.iter().tuples() {
         swapped.push((p1.clone(), p2.clone()));
-        v.swap(*p1, *p2);
+        path.path.swap(*p1, *p2);
     }
-    let nl: f64 = common::length(v);
+    let nl: f64 = path.path_len();
     if nl > l {
         for (p1, p2) in swapped.iter().rev() {
-            v.swap(*p2, *p1);
+            path.path.swap(*p2, *p1);
         }
         return None;
     }

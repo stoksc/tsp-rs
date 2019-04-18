@@ -34,7 +34,6 @@ impl<T: Metrizable + Clone + Borrow<T>> Path<T> {
             };
         }
 
-        self.len = common::length(&path);
         self.path = path;
     }
 }

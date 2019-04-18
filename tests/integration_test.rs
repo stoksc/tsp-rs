@@ -16,7 +16,8 @@ fn test_solve() {
     path.solve_kopt(timeout);
     println!(
         "solve_kopt on {} had length {}",
-        TEST_DATA_FILENAME, path.len
+        TEST_DATA_FILENAME,
+        path.path_len()
     );
 }
 
@@ -27,7 +28,11 @@ fn test_solve_nn() {
 
     let mut path = tsp::common::Path::from(&v);
     path.solve_nn();
-    println!("solve_nn on {} had length {}", TEST_DATA_FILENAME, path.len);
+    println!(
+        "solve_nn on {} had length {}",
+        TEST_DATA_FILENAME,
+        path.path_len()
+    );
 }
 
 fn parse_tsp_file(filename: &String) -> Vec<tsp::point::Point> {
