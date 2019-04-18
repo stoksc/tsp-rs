@@ -1,4 +1,6 @@
+mod common;
 mod kopt;
+pub mod metrizable;
 pub mod point;
 
 use rand::Rng;
@@ -6,56 +8,19 @@ use std::borrow::Borrow;
 use std::collections::HashSet;
 use std::time;
 
-pub trait Metrizable {
-    fn distance(&self, other: &Self) -> f64;
-
-    fn nearest_neighbor<'a>(
-        &self,
-        others: &Vec<IndexedT<&'a Self>>,
-        visited: &mut HashSet<usize>,
-    ) -> Option<&'a Self>
-    where
-        Self: Sized + Clone,
-    {
-        let mut nearest = std::f64::MAX;
-        let mut nearest_node = None;
-
-        for other in others {
-            let dist = self.distance(&other.value);
-            if dist < nearest && !visited.contains(&other.index) {
-                nearest = dist;
-                nearest_node = Some(other);
-            }
-        }
-
-        if let Some(nearest_node) = nearest_node {
-            visited.insert(nearest_node.index);
-            Some(nearest_node.value)
-        } else {
-            None
-        }
-    }
-}
-
-#[derive(Clone)]
-pub struct IndexedT<T> {
-    index: usize,
-    value: T,
-}
-
 #[derive(Debug, Clone, PartialEq)]
-pub struct Path<T: Metrizable> {
+pub struct Path<T: metrizable::Metrizable> {
     pub len: f64,
     pub path: Vec<T>,
 }
 
-impl<T: Metrizable + Clone + Borrow<T>> Path<T> {
+impl<T: metrizable::Metrizable + Clone + Borrow<T>> Path<T> {
     pub fn new(nodes: &Vec<T>) -> Path<T>
     where
         T: Clone,
     {
         Path {
-            len: length(nodes),
+            len: common::length(nodes),
             path: (*nodes).clone(),
         }
     }
@@ -83,15 +48,15 @@ impl<T: Metrizable + Clone + Borrow<T>> Path<T> {
                 break;
             }
         }
-        self.len = length(&self.path);
+        self.len = common::length(&self.path);
     }
 
     pub fn solve_nn(&mut self)
     where
-        T: Metrizable + Clone,
+        T: metrizable::Metrizable + Clone,
     {
         let mut path = Vec::new();
-        let nodes = index_path(&self.path);
+        let nodes = common::index_path(&self.path);
         let mut visited = HashSet::new();
 
         let start_index: usize = rand::thread_rng().gen_range(0, nodes.len());
@@ -113,33 +78,7 @@ impl<T: Metrizable + Clone + Borrow<T>> Path<T> {
             };
         }
 
-        self.len = length(&path);
+        self.len = common::length(&path);
         self.path = path;
     }
-}
-
-#[inline]
-fn index_path<T>(path: &Vec<T>) -> Vec<IndexedT<&T>> {
-    path.iter()
-        .enumerate()
-        .map(|(index, value)| IndexedT { index, value })
-        .collect()
-}
-
-#[inline]
-pub fn length<T>(v: &Vec<T>) -> f64
-where
-    T: Metrizable,
-{
-    if v.len() <= 0 {
-        return 0.;
-    }
-
-    let mut sum = 0.;
-    let mut prev = v.last().unwrap();
-    for curr in v {
-        sum += prev.distance(curr);
-        prev = curr;
-    }
-    sum
 }
