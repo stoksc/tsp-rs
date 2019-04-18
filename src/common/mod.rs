@@ -1,4 +1,31 @@
+use std::borrow::Borrow;
+
 use crate::metrizable::Metrizable;
+
+#[derive(Debug, Clone, PartialEq)]
+pub struct Path<T: Metrizable> {
+    pub len: f64,
+    pub path: Vec<T>,
+}
+
+impl<T: Metrizable + Clone + Borrow<T>> Path<T> {
+    pub fn new() -> Path<T> {
+        Path {
+            len: 0.,
+            path: Vec::new() as Vec<T>,
+        }
+    }
+
+    pub fn from(nodes: &Vec<T>) -> Path<T>
+    where
+        T: Clone,
+    {
+        Path {
+            len: length(nodes),
+            path: (*nodes).clone(),
+        }
+    }
+}
 
 #[derive(Clone)]
 pub struct IndexedT<T> {

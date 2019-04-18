@@ -1,8 +1,40 @@
-use crate::common;
-use crate::metrizable::Metrizable;
+use std::borrow::Borrow;
+use std::collections::HashSet;
+use std::time;
+
 use itertools::Itertools;
 use rand::Rng;
-use std::collections::HashSet;
+
+use crate::common::{self, Path};
+use crate::metrizable::Metrizable;
+
+impl<T: Metrizable + Clone + Borrow<T>> Path<T> {
+    pub fn solve_kopt(&mut self, timeout: time::Duration) {
+        let max_iter = self.path.len() / 2;
+        let mut iter_without_impr = 0;
+        let mut previous_length: f64 = std::f64::MAX;
+        let start_time = time::Instant::now();
+        loop {
+            match crate::kopt::two_opt(&mut self.path) {
+                Some(x) => {
+                    iter_without_impr = 0;
+                    previous_length = x;
+                }
+                None => {
+                    iter_without_impr += 1;
+                    if iter_without_impr < max_iter {
+                        iter_without_impr = 0;
+                        crate::kopt::n_opt(4, &mut self.path, previous_length);
+                    }
+                }
+            }
+            if start_time.elapsed() > timeout {
+                break;
+            }
+        }
+        self.len = common::length(&self.path);
+    }
+}
 
 #[inline]
 pub fn two_opt<T>(v: &mut Vec<T>) -> Option<f64>
