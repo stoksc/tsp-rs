@@ -13,11 +13,22 @@ fn test_solve() {
     let v = parse_tsp_file(&filename);
 
     let timeout = time::Duration::from_secs(DEFAULT_TIMEOUT);
-    let solution = tsp::solve(&v, timeout);
+    let mut path = tsp::Path::new(&v);
+    path.solve_kopt(timeout);
     println!(
-        "Solution to {} had length {}",
-        TEST_DATA_FILENAME, solution.len
+        "solve_kopt on {} had length {}",
+        TEST_DATA_FILENAME, path.len
     );
+}
+
+#[test]
+fn test_solve_nn() {
+    let filename = String::from(TEST_DATA_FILENAME);
+    let v = parse_tsp_file(&filename);
+
+    let mut path = tsp::Path::new(&v);
+    path.solve_nn();
+    println!("solve_nn on {} had length {}", TEST_DATA_FILENAME, path.len);
 }
 
 fn parse_tsp_file(filename: &String) -> Vec<tsp::Point> {

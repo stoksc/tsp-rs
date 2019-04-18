@@ -1,15 +1,45 @@
 use itertools::Itertools;
 use rand::Rng;
+use std::borrow::Borrow;
 use std::collections::HashSet;
 use std::time;
 
-const MAX_ITER_WITHOUT_IMPR: u32 = 100;
-
 pub trait Metrizable {
-    fn distance(&self, y: &Self) -> f64;
+    fn distance(&self, other: &Self) -> f64;
+
+    fn nearest_neighbor<'a>(
+        &self,
+        others: &Vec<IndexedT<&'a Self>>,
+        visited: &mut HashSet<usize>,
+    ) -> Option<&'a Self>
+    where
+        Self: Sized + Clone,
+    {
+        let mut nearest = std::f64::MAX;
+        let mut nearest_node = None;
+        for other in others {
+            let dist = self.distance(&other.value);
+            if dist < nearest && !visited.contains(&other.index) {
+                nearest = dist;
+                nearest_node = Some(other);
+            }
+        }
+        if let Some(nearest_node) = nearest_node {
+            visited.insert(nearest_node.index);
+            Some(nearest_node.value)
+        } else {
+            None
+        }
+    }
 }
 
-#[derive(Debug, Clone, Copy, PartialEq)]
+#[derive(Clone)]
+pub struct IndexedT<T> {
+    index: usize,
+    value: T,
+}
+
+#[derive(Debug, Clone, PartialEq, PartialOrd)]
 pub struct Point {
     x: f64,
     y: f64,
@@ -22,8 +52,8 @@ impl Point {
 }
 
 impl Metrizable for Point {
-    fn distance(&self, b: &Point) -> f64 {
-        return ((self.x - b.x).powf(2.) + (self.y - b.y).powf(2.)).sqrt();
+    fn distance(&self, other: &Point) -> f64 {
+        return ((self.x - other.x).powf(2.) + (self.y - other.y).powf(2.)).sqrt();
     }
 }
 
@@ -33,35 +63,72 @@ pub struct Path<T: Metrizable> {
     pub path: Vec<T>,
 }
 
-pub fn solve<T>(v: &Vec<T>, timeout: time::Duration) -> Path<T>
-where
-    T: Metrizable + Clone,
-{
-    let mut result = v.clone();
-    let mut iter_without_impr = 0;
-    let mut past: f64 = std::f64::MAX;
-    let start_time = time::Instant::now();
-    loop {
-        match two_opt(&mut result) {
-            Some(x) => {
-                iter_without_impr = 0;
-                past = x;
-            }
-            None => {
-                iter_without_impr += 1;
-                if iter_without_impr < MAX_ITER_WITHOUT_IMPR {
-                    iter_without_impr = 0;
-                    n_opt(4, &mut result, past);
-                }
-            }
-        }
-        if start_time.elapsed() > timeout {
-            break;
+impl<T: Metrizable + Clone + Borrow<T>> Path<T> {
+    pub fn new(nodes: &Vec<T>) -> Path<T>
+    where
+        T: Clone,
+    {
+        Path {
+            len: length(nodes),
+            path: (*nodes).clone(),
         }
     }
-    Path {
-        len: length(&result),
-        path: result.to_vec(),
+
+    pub fn solve_kopt(&mut self, timeout: time::Duration) {
+        const MAX_ITER_WITHOUT_IMPR: u32 = 100;
+        let mut iter_without_impr = 0;
+        let mut previous_length: f64 = std::f64::MAX;
+        let start_time = time::Instant::now();
+        loop {
+            match two_opt(&mut self.path) {
+                Some(x) => {
+                    iter_without_impr = 0;
+                    previous_length = x;
+                }
+                None => {
+                    iter_without_impr += 1;
+                    if iter_without_impr < MAX_ITER_WITHOUT_IMPR {
+                        iter_without_impr = 0;
+                        n_opt(4, &mut self.path, previous_length);
+                    }
+                }
+            }
+            if start_time.elapsed() > timeout {
+                break;
+            }
+        }
+        self.len = length(&self.path);
+    }
+
+    pub fn solve_nn(&mut self)
+    where
+        T: Metrizable + Clone,
+    {
+        let mut path = Vec::new();
+        let nodes = index_path(&self.path);
+        let mut visited = HashSet::new();
+
+        let start_index: usize = rand::thread_rng().gen_range(0, nodes.len());
+        let mut curr = &nodes[start_index].value.clone();
+        path.push(curr.clone());
+        visited.insert(nodes[start_index].index);
+
+        loop {
+            match curr.nearest_neighbor(&nodes, &mut visited) {
+                Some(next) => {
+                    path.push(next.clone());
+                    curr = next;
+                }
+                None => {
+                    if visited.len() == nodes.len() {
+                        break;
+                    }
+                }
+            };
+        }
+
+        self.len = length(&path);
+        self.path = path;
     }
 }
 
@@ -112,6 +179,14 @@ where
         return None;
     }
     return Some(nl);
+}
+
+#[inline]
+fn index_path<T>(path: &Vec<T>) -> Vec<IndexedT<&T>> {
+    path.iter()
+        .enumerate()
+        .map(|(index, value)| IndexedT { index, value })
+        .collect()
 }
 
 #[inline]
