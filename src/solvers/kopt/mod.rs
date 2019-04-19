@@ -8,9 +8,12 @@ use crate::metrizable::Metrizable;
 
 impl<T: Metrizable + Clone + Borrow<T>> Tour<T> {
     pub fn solve_kopt(&mut self, timeout: time::Duration) {
+        self.solve_nn();
         let start_time = time::Instant::now();
         let max_iter_withouth_impr = self.path.len() ^ 2;
         let mut iter_without_impr = 0;
+        let mut best_tour_length = std::f64::MAX;
+        let mut best_tour: Vec<T> = Vec::new();
         loop {
             match k_opt(2, self) {
                 Some(_) => {
@@ -19,7 +22,12 @@ impl<T: Metrizable + Clone + Borrow<T>> Tour<T> {
                 None => {
                     iter_without_impr += 1;
                     if iter_without_impr > max_iter_withouth_impr {
-                        k_opt(3, self);
+                        let current_tour_length = self.path_len();
+                        if current_tour_length < best_tour_length {
+                            best_tour = self.path.clone();
+                            best_tour_length = current_tour_length;
+                        }
+                        k_opt(4, self); // kick
                         iter_without_impr = 0;
                     }
                 }
@@ -28,6 +36,11 @@ impl<T: Metrizable + Clone + Borrow<T>> Tour<T> {
                 break;
             }
         }
+        let current_tour_length = self.path_len();
+        if current_tour_length < best_tour_length {
+            best_tour = self.path.clone();
+        }
+        self.path = best_tour;
     }
 }
 
@@ -120,17 +133,7 @@ pub fn three_opt<T>(i: usize, j: usize, k: usize, path: &mut Tour<T>) -> Option<
 where
     T: Metrizable + Clone,
 {
-    if let Some(x) = two_opt(i, j, path) {
-        Some(x)
-    } else if let Some(x) = two_opt(j, k, path) {
-        Some(x)
-    } else if let Some(x) = two_opt(i, k, path) {
-        Some(x)
-    } else if let (Some(x), Some(y)) = (two_opt(i, j, path), two_opt(j, k, path)) {
-        Some(x + y)
-    } else {
-        None
-    }
+    Some(two_opt(i, j, path).unwrap_or_default() + two_opt(j, k, path).unwrap_or_default())
 }
 
 #[inline]
@@ -138,23 +141,11 @@ pub fn four_opt<T>(i: usize, j: usize, k: usize, l: usize, path: &mut Tour<T>) -
 where
     T: Metrizable + Clone,
 {
-    if let Some(x) = three_opt(i, j, k, path) {
-        Some(x)
-    } else if let Some(x) = three_opt(i, j, l, path) {
-        Some(x)
-    } else if let Some(x) = three_opt(i, k, l, path) {
-        Some(x)
-    } else if let Some(x) = three_opt(j, k, l, path) {
-        Some(x)
-    } else if let (Some(x), Some(y), Some(z)) = (
-        two_opt(i, j, path),
-        two_opt(j, k, path),
-        two_opt(k, l, path),
-    ) {
-        Some(x + y + z)
-    } else {
-        None
-    }
+    Some(
+        two_opt(i, j, path).unwrap_or_default()
+            + two_opt(j, k, path).unwrap_or_default()
+            + two_opt(k, l, path).unwrap_or_default(),
+    )
 }
 
 pub fn rand_index<T>(path: &Tour<T>) -> usize

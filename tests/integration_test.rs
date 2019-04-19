@@ -2,20 +2,38 @@ use std::fs::File;
 use std::io::Read;
 use std::time;
 
-const TEST_DATA_FILENAMES: [&str; 2] = ["tests/data/b52.tsp", "tests/data/qa194.tsp"];
+const TEST_DATA_FILENAMES: [&str; 3] = [
+    "tests/data/b52.tsp",
+    "tests/data/qa194.tsp",
+    "tests/data/vm22775.tsp",
+];
 const DEFAULT_TIMEOUT: u64 = 1;
 const EOF: &str = "EOF";
 
 #[test]
 fn test_solve() {
     for filename in &TEST_DATA_FILENAMES {
-        let filename = String::from(*filename);
-        let v = parse_tsp_file(&filename);
+        let n = 20;
+        let mut total = 0.;
+        let mut best = std::f64::MAX;
+        let mut worst = std::f64::MIN;
+        for _ in 0..n {
+            let filename = String::from(*filename);
+            let v = parse_tsp_file(&filename);
 
-        let timeout = time::Duration::from_secs(DEFAULT_TIMEOUT);
-        let mut path = tsp::common::Tour::from(&v);
-        path.solve_kopt(timeout);
-        println!("solve_kopt on {} had length {}", filename, path.path_len());
+            let timeout = time::Duration::from_secs(DEFAULT_TIMEOUT);
+            let mut path = tsp::common::Tour::from(&v);
+            path.solve_kopt(timeout);
+
+            let result = path.path_len();
+            total += result;
+            best = if result < best { result } else { best };
+            worst = if result > worst { result } else { worst };
+        }
+        println!("solve_kopt on {} had:", filename);
+        println!("\tworst case: {}", worst);
+        println!("\tbest case: {}", best);
+        println!("\taverage: {}", total / (n as f64));
     }
 }
 
