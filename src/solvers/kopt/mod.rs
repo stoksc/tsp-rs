@@ -8,7 +8,7 @@ use crate::metrizable::Metrizable;
 
 impl<T: Metrizable + Clone + Borrow<T>> Path<T> {
     pub fn solve_kopt(&mut self, timeout: time::Duration) {
-        let max_iter = self.path.len();
+        let max_iter_withouth_impr = self.path.len() ^ 2;
         let mut iter_without_impr = 0;
         let mut k = 2;
         let start_time = time::Instant::now();
@@ -20,7 +20,7 @@ impl<T: Metrizable + Clone + Borrow<T>> Path<T> {
                 }
                 None => {
                     iter_without_impr += 1;
-                    if iter_without_impr > max_iter {
+                    if iter_without_impr > max_iter_withouth_impr {
                         k = 3;
                         iter_without_impr = 0;
                     }
@@ -70,6 +70,25 @@ where
 
             three_opt(i, j, k, path)
         }
+        4 => {
+            let mut i = rand_index(path);
+            let mut j = rand_index(path);
+            let mut k = rand_index(path);
+            let mut l = rand_index(path);
+
+            if i == j || j == k || k == l {
+                return None;
+            }
+
+            let mut ijkl = vec![i, j, k, l];
+            ijkl.sort();
+            i = ijkl[0];
+            j = ijkl[1];
+            k = ijkl[2];
+            l = ijkl[3];
+
+            four_opt(i, j, k, l, path)
+        }
         _ => panic!("Not implemented"),
     }
 }
@@ -110,6 +129,30 @@ where
         Some(x)
     } else if let (Some(x), Some(y)) = (two_opt(i, j, path), two_opt(j, k, path)) {
         Some(x + y)
+    } else {
+        None
+    }
+}
+
+#[inline]
+pub fn four_opt<T>(i: usize, j: usize, k: usize, l: usize, path: &mut Path<T>) -> Option<f64>
+where
+    T: Metrizable + Clone,
+{
+    if let Some(x) = three_opt(i, j, k, path) {
+        Some(x)
+    } else if let Some(x) = three_opt(i, j, l, path) {
+        Some(x)
+    } else if let Some(x) = three_opt(i, k, l, path) {
+        Some(x)
+    } else if let Some(x) = three_opt(j, k, l, path) {
+        Some(x)
+    } else if let (Some(x), Some(y), Some(z)) = (
+        two_opt(i, j, path),
+        two_opt(j, k, path),
+        two_opt(k, l, path),
+    ) {
+        Some(x + y + z)
     } else {
         None
     }
