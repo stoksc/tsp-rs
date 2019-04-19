@@ -2,7 +2,7 @@ use crate::common;
 use std::collections::HashSet;
 
 pub trait Metrizable {
-    fn distance(&self, other: &Self) -> f64;
+    fn cost(&self, other: &Self) -> f64;
 
     fn nearest_neighbor<'a>(
         &self,
@@ -16,7 +16,7 @@ pub trait Metrizable {
         let mut nearest_node = None;
 
         for other in others {
-            let dist = self.distance(&other.value);
+            let dist = self.cost(&other.value);
             if dist < nearest && !visited.contains(&other.index) {
                 nearest = dist;
                 nearest_node = Some(other);

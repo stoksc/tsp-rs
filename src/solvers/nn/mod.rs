@@ -3,10 +3,10 @@ use std::collections::HashSet;
 
 use rand::Rng;
 
-use crate::common::{self, Path};
+use crate::common::{self, Tour};
 use crate::metrizable::Metrizable;
 
-impl<T: Metrizable + Clone + Borrow<T>> Path<T> {
+impl<T: Metrizable + Clone + Borrow<T>> Tour<T> {
     pub fn solve_nn(&mut self)
     where
         T: Metrizable + Clone,

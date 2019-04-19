@@ -3,10 +3,10 @@ use std::time;
 
 use rand::Rng;
 
-use crate::common::Path;
+use crate::common::Tour;
 use crate::metrizable::Metrizable;
 
-impl<T: Metrizable + Clone + Borrow<T>> Path<T> {
+impl<T: Metrizable + Clone + Borrow<T>> Tour<T> {
     pub fn solve_kopt(&mut self, timeout: time::Duration) {
         let start_time = time::Instant::now();
         let max_iter_withouth_impr = self.path.len() ^ 2;
@@ -32,7 +32,7 @@ impl<T: Metrizable + Clone + Borrow<T>> Path<T> {
 }
 
 #[inline]
-pub fn k_opt<T>(k: usize, path: &mut Path<T>) -> Option<f64>
+pub fn k_opt<T>(k: usize, path: &mut Tour<T>) -> Option<f64>
 where
     T: Metrizable + Clone,
 {
@@ -93,7 +93,7 @@ where
 }
 
 #[inline]
-pub fn two_opt<T>(i: usize, j: usize, path: &mut Path<T>) -> Option<f64>
+pub fn two_opt<T>(i: usize, j: usize, path: &mut Tour<T>) -> Option<f64>
 where
     T: Metrizable + Clone,
 {
@@ -103,7 +103,7 @@ where
     new_path.append(&mut middle);
     new_path.append(&mut Vec::from(&path.path[j..]));
 
-    let new_path = Path { path: new_path };
+    let new_path = Tour { path: new_path };
     let prev_len = path.path_len();
     let post_len = new_path.path_len();
 
@@ -116,7 +116,7 @@ where
 }
 
 #[inline]
-pub fn three_opt<T>(i: usize, j: usize, k: usize, path: &mut Path<T>) -> Option<f64>
+pub fn three_opt<T>(i: usize, j: usize, k: usize, path: &mut Tour<T>) -> Option<f64>
 where
     T: Metrizable + Clone,
 {
@@ -134,7 +134,7 @@ where
 }
 
 #[inline]
-pub fn four_opt<T>(i: usize, j: usize, k: usize, l: usize, path: &mut Path<T>) -> Option<f64>
+pub fn four_opt<T>(i: usize, j: usize, k: usize, l: usize, path: &mut Tour<T>) -> Option<f64>
 where
     T: Metrizable + Clone,
 {
@@ -157,7 +157,7 @@ where
     }
 }
 
-pub fn rand_index<T>(path: &Path<T>) -> usize
+pub fn rand_index<T>(path: &Tour<T>) -> usize
 where
     T: Metrizable,
 {
@@ -167,19 +167,19 @@ where
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::common::Path;
+    use crate::common::Tour;
     use crate::point::Point;
 
     #[test]
     fn test_two_opt() {
-        let mut path = Path::from(&vec![
+        let mut path = Tour::from(&vec![
             Point::new(0., 0.),
             Point::new(1., 1.),
             Point::new(1., 0.),
             Point::new(0., 1.),
         ]);
 
-        let two_opt_path = Path::from(&vec![
+        let two_opt_path = Tour::from(&vec![
             Point::new(0., 0.),
             Point::new(1., 0.),
             Point::new(1., 1.),

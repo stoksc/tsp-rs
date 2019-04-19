@@ -13,7 +13,7 @@ fn test_solve() {
         let v = parse_tsp_file(&filename);
 
         let timeout = time::Duration::from_secs(DEFAULT_TIMEOUT);
-        let mut path = tsp::common::Path::from(&v);
+        let mut path = tsp::common::Tour::from(&v);
         path.solve_kopt(timeout);
         println!("solve_kopt on {} had length {}", filename, path.path_len());
     }
@@ -25,7 +25,7 @@ fn test_solve_nn() {
         let filename = String::from(*filename);
         let v = parse_tsp_file(&filename);
 
-        let mut path = tsp::common::Path::from(&v);
+        let mut path = tsp::common::Tour::from(&v);
         path.solve_nn();
         println!("solve_nn on {} had length {}", filename, path.path_len());
     }

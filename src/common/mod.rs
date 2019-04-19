@@ -3,22 +3,22 @@ use std::borrow::Borrow;
 use crate::metrizable::Metrizable;
 
 #[derive(Debug, Clone, PartialEq)]
-pub struct Path<T: Metrizable> {
+pub struct Tour<T: Metrizable> {
     pub path: Vec<T>,
 }
 
-impl<T: Metrizable + Clone + Borrow<T>> Path<T> {
-    pub fn new() -> Path<T> {
-        Path {
+impl<T: Metrizable + Clone + Borrow<T>> Tour<T> {
+    pub fn new() -> Tour<T> {
+        Tour {
             path: Vec::new() as Vec<T>,
         }
     }
 
-    pub fn from(nodes: &Vec<T>) -> Path<T>
+    pub fn from(nodes: &Vec<T>) -> Tour<T>
     where
         T: Clone,
     {
-        Path {
+        Tour {
             path: (*nodes).clone(),
         }
     }
@@ -31,7 +31,7 @@ impl<T: Metrizable + Clone + Borrow<T>> Path<T> {
         let mut sum = 0.;
         let mut prev = self.path.last().unwrap();
         for curr in &self.path {
-            sum += prev.distance(&curr);
+            sum += prev.cost(&curr);
             prev = &curr;
         }
         sum

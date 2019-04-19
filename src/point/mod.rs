@@ -13,7 +13,7 @@ impl Point {
 }
 
 impl Metrizable for Point {
-    fn distance(&self, other: &Point) -> f64 {
+    fn cost(&self, other: &Point) -> f64 {
         return ((self.x - other.x).powf(2.) + (self.y - other.y).powf(2.)).sqrt();
     }
 }
