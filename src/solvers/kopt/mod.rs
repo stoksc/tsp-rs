@@ -8,20 +8,18 @@ use crate::metrizable::Metrizable;
 
 impl<T: Metrizable + Clone + Borrow<T>> Path<T> {
     pub fn solve_kopt(&mut self, timeout: time::Duration) {
+        let start_time = time::Instant::now();
         let max_iter_withouth_impr = self.path.len() ^ 2;
         let mut iter_without_impr = 0;
-        let mut k = 2;
-        let start_time = time::Instant::now();
         loop {
-            match k_opt(k, self) {
+            match k_opt(2, self) {
                 Some(_) => {
                     iter_without_impr = 0;
-                    k = 2;
                 }
                 None => {
                     iter_without_impr += 1;
                     if iter_without_impr > max_iter_withouth_impr {
-                        k = 3;
+                        k_opt(3, self);
                         iter_without_impr = 0;
                     }
                 }
@@ -33,6 +31,7 @@ impl<T: Metrizable + Clone + Borrow<T>> Path<T> {
     }
 }
 
+#[inline]
 pub fn k_opt<T>(k: usize, path: &mut Path<T>) -> Option<f64>
 where
     T: Metrizable + Clone,
