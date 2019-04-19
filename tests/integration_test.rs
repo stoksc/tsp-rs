@@ -2,37 +2,33 @@ use std::fs::File;
 use std::io::Read;
 use std::time;
 
-const TEST_DATA_FILENAME: &str = "tests/data/b52.tsp";
+const TEST_DATA_FILENAMES: [&str; 2] = ["tests/data/b52.tsp", "tests/data/qa194.tsp"];
 const DEFAULT_TIMEOUT: u64 = 1;
 const EOF: &str = "EOF";
 
 #[test]
 fn test_solve() {
-    let filename = String::from(TEST_DATA_FILENAME);
-    let v = parse_tsp_file(&filename);
+    for filename in &TEST_DATA_FILENAMES {
+        let filename = String::from(*filename);
+        let v = parse_tsp_file(&filename);
 
-    let timeout = time::Duration::from_secs(DEFAULT_TIMEOUT);
-    let mut path = tsp::common::Path::from(&v);
-    path.solve_kopt(timeout);
-    println!(
-        "solve_kopt on {} had length {}",
-        TEST_DATA_FILENAME,
-        path.path_len()
-    );
+        let timeout = time::Duration::from_secs(DEFAULT_TIMEOUT);
+        let mut path = tsp::common::Path::from(&v);
+        path.solve_kopt(timeout);
+        println!("solve_kopt on {} had length {}", filename, path.path_len());
+    }
 }
 
 #[test]
 fn test_solve_nn() {
-    let filename = String::from(TEST_DATA_FILENAME);
-    let v = parse_tsp_file(&filename);
+    for filename in &TEST_DATA_FILENAMES {
+        let filename = String::from(*filename);
+        let v = parse_tsp_file(&filename);
 
-    let mut path = tsp::common::Path::from(&v);
-    path.solve_nn();
-    println!(
-        "solve_nn on {} had length {}",
-        TEST_DATA_FILENAME,
-        path.path_len()
-    );
+        let mut path = tsp::common::Path::from(&v);
+        path.solve_nn();
+        println!("solve_nn on {} had length {}", filename, path.path_len());
+    }
 }
 
 fn parse_tsp_file(filename: &String) -> Vec<tsp::point::Point> {
