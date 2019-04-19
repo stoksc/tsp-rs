@@ -102,46 +102,14 @@ pub fn three_opt<T>(i: usize, j: usize, k: usize, path: &mut Path<T>) -> Option<
 where
     T: Metrizable + Clone,
 {
-    let a = &path.path[i % path.path.len()];
-    let b = &path.path[(i + 1) % path.path.len()];
-    let c = &path.path[j % path.path.len()];
-    let d = &path.path[(j + 1) % path.path.len()];
-    let e = &path.path[k % path.path.len()];
-    let f = &path.path[(k + 1) % path.path.len()];
-
-    let d0 = a.distance(&b) + c.distance(&d) + e.distance(&f);
-    let d1 = a.distance(&c) + b.distance(&d) + e.distance(&f);
-    let d2 = a.distance(&b) + c.distance(&e) + d.distance(&f);
-    let d3 = a.distance(&d) + e.distance(&b) + c.distance(&f);
-    let d4 = f.distance(&b) + c.distance(&d) + e.distance(&a);
-
-    if d0 > d1 {
-        let mut new_path = Vec::from(&path.path[..i]);
-        let mut middle = Vec::from(&path.path[i..j]);
-        middle.reverse();
-        new_path.append(&mut middle);
-        new_path.append(&mut Vec::from(&path.path[j..]));
-        Some(-d0 + d1)
-    } else if d0 > d2 {
-        let mut new_path = Vec::from(&path.path[..j]);
-        let mut middle = Vec::from(&path.path[j..k]);
-        middle.reverse();
-        new_path.append(&mut middle);
-        new_path.append(&mut Vec::from(&path.path[k..]));
-        Some(-d0 + d2)
-    } else if d0 > d4 {
-        let mut new_path = Vec::from(&path.path[..i]);
-        let mut middle = Vec::from(&path.path[i..k]);
-        middle.reverse();
-        new_path.append(&mut middle);
-        new_path.append(&mut Vec::from(&path.path[k..]));
-        Some(-d0 + d4)
-    } else if d0 > d3 {
-        let mut new_path = Vec::from(&path.path[..i]);
-        new_path.append(&mut Vec::from(&path.path[j..k]));
-        new_path.append(&mut Vec::from(&path.path[i..j]));
-        new_path.append(&mut Vec::from(&path.path[k..]));
-        Some(-d0 + d3)
+    if let Some(x) = two_opt(i, j, path) {
+        Some(x)
+    } else if let Some(x) = two_opt(j, k, path) {
+        Some(x)
+    } else if let Some(x) = two_opt(i, k, path) {
+        Some(x)
+    } else if let (Some(x), Some(y)) = (two_opt(i, j, path), two_opt(j, k, path)) {
+        Some(x + y)
     } else {
         None
     }
