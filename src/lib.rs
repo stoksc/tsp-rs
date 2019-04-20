@@ -1,15 +1,22 @@
 //! Crate of algorithms for solving the traveling salesman problem.
 //!
-//! # Examples
+//! # Example
 //! ```
-//! let my_data: Vec<(f64, f64)> = ... ;
-//! let path: Vec<tsp::point::Point> = my_data.iter().map(|(x, y)| {
-//!     tsp::point::Point{ x, y }
-//! }).collect();
+//! use std::time;
 //!
-//! let mut path = tsp::common::Path::from(&path);
+//! use tsp_rs::Tour;
+//! use tsp_rs::point::Point;
 //!
-//! path.solve_kopt(std::time::Duration::from_secs(1));
+//! let tour: Vec<Point> = vec![
+//!     Point::new(0., 0.),
+//!     Point::new(0., 1.),
+//!     Point::new(1., 0.),
+//!     Point::new(1., 1.),
+//! ];
+//!
+//! let mut tour = Tour::from(&tour);
+//!
+//! tour.solve_kopt(std::time::Duration::from_secs(1));
 //! ```
 //!
 //! _Disclaimer:_
@@ -31,15 +38,7 @@ use rand::Rng;
 ///
 /// # Examples
 /// An example implementation is found on `tsp::point::Point`, that implements
-/// standard euclidean distance as its metric:
-///
-/// ```
-/// impl Metrizable for Point {
-///    fn cost(&self, other: &Point) -> f64 {
-///        return ((self.x - other.x).powf(2.) + (self.y - other.y).powf(2.)).sqrt();
-///    }
-/// }
-/// ```
+/// standard euclidean distance as its metric.
 pub trait Metrizable {
     fn cost(&self, other: &Self) -> f64;
 }
@@ -55,7 +54,10 @@ impl<T: Metrizable + Clone + Borrow<T>> Tour<T> {
     ///
     /// # Example
     /// ```
-    /// let tour<tsp::point::Point> = Tour::new();
+    /// use tsp_rs::Tour;
+    /// use tsp_rs::point::Point;
+    ///
+    /// let tour: Tour<Point> = Tour::new();
     /// ```
     pub fn new() -> Tour<T> {
         Tour {
@@ -68,16 +70,17 @@ impl<T: Metrizable + Clone + Borrow<T>> Tour<T> {
     ///
     /// # Example
     /// ```
-    /// use tsp::point::Point;
+    /// use tsp_rs::Tour;
+    /// use tsp_rs::point::Point;
     ///
     /// let nodes = vec![
     ///     Point::new(0., 0.),
     ///     Point::new(1., 0.),
     ///     Point::new(1., 1.),
     ///     Point::new(0., 1.),
-    /// ]
+    /// ];
     ///
-    /// let tour = Tour::from(&vec);
+    /// let tour = Tour::from(&nodes);
     /// ```
     pub fn from(nodes: &Vec<T>) -> Tour<T>
     where
@@ -112,9 +115,21 @@ impl<T: Metrizable + Clone + Borrow<T>> Tour<T> {
     /// # Examples
     ///
     /// ```
-    /// let my_data: Vec<T: Metrizable> = ...
-    /// let path = Path::from(&my_data)
-    /// path.solve_kopt(time::Duration::from_secs(1));
+    /// use std::time;
+    ///
+    /// use tsp_rs::Tour;
+    /// use tsp_rs::point::Point;
+    ///
+    /// let nodes = vec![
+    ///     Point::new(0., 0.),
+    ///     Point::new(1., 0.),
+    ///     Point::new(1., 1.),
+    ///     Point::new(0., 1.),
+    /// ];
+    ///
+    /// let mut tour = Tour::from(&nodes);
+    ///
+    /// tour.solve_kopt(time::Duration::from_secs(1));
     /// ```
     pub fn solve_kopt(&mut self, timeout: time::Duration) {
         self.solve_nn();
@@ -152,14 +167,24 @@ impl<T: Metrizable + Clone + Borrow<T>> Tour<T> {
         self.path = best_tour;
     }
 
-    /// Constructs a inplace using the nearest neighb
+    /// Constructs a tour inplace using the nearest neighbor heuristic
     ///
     /// # Examples
     ///
     /// ```
-    /// let my_data: Vec<T: Metrizable> = ...
-    /// let path = Path::from(&my_data)
-    /// path.solve_nn();
+    /// use tsp_rs::Tour;
+    /// use tsp_rs::point::Point;
+    ///
+    /// let nodes = vec![
+    ///     Point::new(0., 0.),
+    ///     Point::new(1., 0.),
+    ///     Point::new(1., 1.),
+    ///     Point::new(0., 1.),
+    /// ];
+    ///
+    /// let mut tour = Tour::from(&nodes);
+    ///
+    /// tour.solve_nn();
     /// ```
     pub fn solve_nn(&mut self)
     where

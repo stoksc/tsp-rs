@@ -2,7 +2,8 @@ use std::fs::File;
 use std::io::Read;
 use std::time;
 
-use tsp::Tour;
+use tsp_rs::point::Point;
+use tsp_rs::Tour;
 
 const TEST_DATA_FILENAMES: [&str; 3] = [
     "tests/data/b52.tsp",
@@ -15,7 +16,7 @@ const EOF: &str = "EOF";
 #[test]
 fn test_solve() {
     for filename in &TEST_DATA_FILENAMES {
-        let n = 5;
+        let n = 100;
         let mut total = 0.;
         let mut best = std::f64::MAX;
         let mut worst = std::f64::MIN;
@@ -51,7 +52,7 @@ fn test_solve_nn() {
     }
 }
 
-fn parse_tsp_file(filename: &String) -> Vec<tsp::point::Point> {
+fn parse_tsp_file(filename: &String) -> Vec<Point> {
     let mut f = File::open(filename).expect("Failed to open test data file");
     let mut contents = String::new();
     f.read_to_string(&mut contents)
@@ -69,7 +70,7 @@ fn parse_tsp_file(filename: &String) -> Vec<tsp::point::Point> {
             Some(x) => x.trim().parse().expect("Failed to parse point"),
             None => panic!("Not enough data to parse point"),
         };
-        let point = tsp::point::Point::new(parse_next_float(), parse_next_float());
+        let point = Point::new(parse_next_float(), parse_next_float());
         results.push(point);
     }
     results
