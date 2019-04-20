@@ -1,6 +1,4 @@
-# tsp
-
-[![CircleCI](https://circleci.com/gh/stoksc/tsp-rs.svg?style=svg)](https://circleci.com/gh/stoksc/tsp-rs)
+# tsp-rs [![CircleCI](https://circleci.com/gh/stoksc/tsp-rs.svg?style=svg)](https://circleci.com/gh/stoksc/tsp-rs)
 
 Library for traveling salesman problem algorithms. 
 
@@ -11,21 +9,21 @@ Library for traveling salesman problem algorithms.
 For 2d point datasets:
 
 ```rust
-let my_data: Vec<(f64, f64)> = ... ;
+use std::time;
 
-// convert your data to Point structs
-let path: Vec<tsp::point::Point> = my_data.iter().map(|(x, y)| {
-    tsp::point::Point{ x, y }
-}).collect();
+use tsp_rs::Tour;
+use tsp_rs::point::Point;
 
-// construct a Path
-let mut path = tsp::common::Path::from(&path);
+let tour: Vec<Point> = vec![
+    Point::new(0., 0.),
+    Point::new(0., 1.),
+    Point::new(1., 0.),
+    Point::new(1., 1.),
+];
 
-// call solve with a timeout specified
-path.solve_kopt(std::time::Duration::from_secs(1));
+let mut tour = Tour::from(&tour);
 
-// or use a constructive solution (faster but worse)
-path.solve_nn();
+tour.solve_kopt(std::time::Duration::from_secs(1));
 ```
 
 ### Using traits
