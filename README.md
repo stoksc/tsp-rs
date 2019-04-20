@@ -33,9 +33,9 @@ for your type `T` by defining a distance function between two `T`. Your type wil
 
 ## Performance
 
-`Path::solve_kopt` uses a 2-opt heuristic with 3-opt thrown in if it hits a wall for too long. Gets to within ~8% of the optimal solution for the berlin52 on average in 1 second of execution.
+`Path::solve_kopt` uses a 2-opt heuristic with 3-opt thrown in if it hits a wall for too long. Gets to within ~8% of the optimal solution for the b52 and ~10% of qa194 on average in a run of solve_nn + 1 second of optimization. The larger the problem, the longer you should allow for optimization.
 
-For the constructive solution, `Path::solve_nn`, gets to within ~22% of the optimal solution on average.
+For the constructive solution, `Path::solve_nn`, gets to within ~15% of the optimal solution on average.
 
 ## Comments
 
