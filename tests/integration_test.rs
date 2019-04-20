@@ -26,7 +26,7 @@ fn test_solve() {
 
             let timeout = time::Duration::from_secs(DEFAULT_TIMEOUT);
             let mut tour = Tour::from(&v);
-            tour.solve_kopt(timeout);
+            tour.optimize_kopt(timeout);
 
             let result = tour.tour_len();
             total += result;
@@ -47,7 +47,7 @@ fn test_solve_nn() {
         let v = parse_tsp_file(&filename);
 
         let mut tour = Tour::from(&v);
-        tour.solve_nn();
+        tour.optimize_nn();
         println!("solve_nn on {} had length {}", filename, tour.tour_len());
     }
 }

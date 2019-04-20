@@ -23,7 +23,7 @@ let tour: Vec<Point> = vec![
 
 let mut tour = Tour::from(&tour);
 
-tour.solve_kopt(std::time::Duration::from_secs(1));
+tour.optimize_kopt(std::time::Duration::from_secs(1));
 ```
 
 ### Using traits

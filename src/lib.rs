@@ -16,7 +16,7 @@
 //!
 //! let mut tour = Tour::from(&tour);
 //!
-//! tour.solve_kopt(std::time::Duration::from_secs(1));
+//! tour.optimize_kopt(std::time::Duration::from_secs(1));
 //! ```
 //!
 //! _Disclaimer:_
@@ -129,10 +129,10 @@ impl<T: Metrizable + Clone + Borrow<T>> Tour<T> {
     ///
     /// let mut tour = Tour::from(&nodes);
     ///
-    /// tour.solve_kopt(time::Duration::from_secs(1));
+    /// tour.optimize_kopt(time::Duration::from_secs(1));
     /// ```
-    pub fn solve_kopt(&mut self, timeout: time::Duration) {
-        self.solve_nn();
+    pub fn optimize_kopt(&mut self, timeout: time::Duration) {
+        self.optimize_nn();
         let start_time = time::Instant::now();
         let max_iter_withouth_impr = self.path.len() ^ 2;
         let mut iter_without_impr = 0;
@@ -184,9 +184,9 @@ impl<T: Metrizable + Clone + Borrow<T>> Tour<T> {
     ///
     /// let mut tour = Tour::from(&nodes);
     ///
-    /// tour.solve_nn();
+    /// tour.optimize_nn();
     /// ```
-    pub fn solve_nn(&mut self)
+    pub fn optimize_nn(&mut self)
     where
         T: Metrizable + Clone,
     {
