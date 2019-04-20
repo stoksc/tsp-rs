@@ -1,4 +1,4 @@
-use crate::metrizable::Metrizable;
+use crate::Metrizable;
 
 #[derive(Debug, Clone, PartialEq, PartialOrd)]
 pub struct Point {

@@ -2,6 +2,8 @@ use std::fs::File;
 use std::io::Read;
 use std::time;
 
+use tsp::Tour;
+
 const TEST_DATA_FILENAMES: [&str; 3] = [
     "tests/data/b52.tsp",
     "tests/data/qa194.tsp",
@@ -13,7 +15,7 @@ const EOF: &str = "EOF";
 #[test]
 fn test_solve() {
     for filename in &TEST_DATA_FILENAMES {
-        let n = 20;
+        let n = 5;
         let mut total = 0.;
         let mut best = std::f64::MAX;
         let mut worst = std::f64::MIN;
@@ -22,10 +24,10 @@ fn test_solve() {
             let v = parse_tsp_file(&filename);
 
             let timeout = time::Duration::from_secs(DEFAULT_TIMEOUT);
-            let mut path = tsp::common::Tour::from(&v);
-            path.solve_kopt(timeout);
+            let mut tour = Tour::from(&v);
+            tour.solve_kopt(timeout);
 
-            let result = path.path_len();
+            let result = tour.tour_len();
             total += result;
             best = if result < best { result } else { best };
             worst = if result > worst { result } else { worst };
@@ -43,9 +45,9 @@ fn test_solve_nn() {
         let filename = String::from(*filename);
         let v = parse_tsp_file(&filename);
 
-        let mut path = tsp::common::Tour::from(&v);
-        path.solve_nn();
-        println!("solve_nn on {} had length {}", filename, path.path_len());
+        let mut tour = Tour::from(&v);
+        tour.solve_nn();
+        println!("solve_nn on {} had length {}", filename, tour.tour_len());
     }
 }
 

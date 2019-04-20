@@ -1,51 +1,9 @@
-use std::borrow::Borrow;
-use std::time;
-
 use rand::Rng;
 
-use crate::common::Tour;
-use crate::metrizable::Metrizable;
-
-impl<T: Metrizable + Clone + Borrow<T>> Tour<T> {
-    pub fn solve_kopt(&mut self, timeout: time::Duration) {
-        self.solve_nn();
-        let start_time = time::Instant::now();
-        let max_iter_withouth_impr = self.path.len() ^ 2;
-        let mut iter_without_impr = 0;
-        let mut best_tour_length = std::f64::MAX;
-        let mut best_tour: Vec<T> = Vec::new();
-        loop {
-            match k_opt(2, self) {
-                Some(_) => {
-                    iter_without_impr = 0;
-                }
-                None => {
-                    iter_without_impr += 1;
-                    if iter_without_impr > max_iter_withouth_impr {
-                        let current_tour_length = self.path_len();
-                        if current_tour_length < best_tour_length {
-                            best_tour = self.path.clone();
-                            best_tour_length = current_tour_length;
-                        }
-                        k_opt(4, self); // kick
-                        iter_without_impr = 0;
-                    }
-                }
-            }
-            if start_time.elapsed() > timeout {
-                break;
-            }
-        }
-        let current_tour_length = self.path_len();
-        if current_tour_length < best_tour_length {
-            best_tour = self.path.clone();
-        }
-        self.path = best_tour;
-    }
-}
+use crate::{Metrizable, Tour};
 
 #[inline]
-pub fn k_opt<T>(k: usize, path: &mut Tour<T>) -> Option<f64>
+pub(crate) fn k_opt<T>(k: usize, path: &mut Tour<T>) -> Option<f64>
 where
     T: Metrizable + Clone,
 {
@@ -106,7 +64,7 @@ where
 }
 
 #[inline]
-pub fn two_opt<T>(i: usize, j: usize, path: &mut Tour<T>) -> Option<f64>
+pub(crate) fn two_opt<T>(i: usize, j: usize, path: &mut Tour<T>) -> Option<f64>
 where
     T: Metrizable + Clone,
 {
@@ -117,8 +75,8 @@ where
     new_path.append(&mut Vec::from(&path.path[j..]));
 
     let new_path = Tour { path: new_path };
-    let prev_len = path.path_len();
-    let post_len = new_path.path_len();
+    let prev_len = path.tour_len();
+    let post_len = new_path.tour_len();
 
     if post_len < prev_len {
         path.path = new_path.path;
@@ -129,7 +87,7 @@ where
 }
 
 #[inline]
-pub fn three_opt<T>(i: usize, j: usize, k: usize, path: &mut Tour<T>) -> Option<f64>
+pub(crate) fn three_opt<T>(i: usize, j: usize, k: usize, path: &mut Tour<T>) -> Option<f64>
 where
     T: Metrizable + Clone,
 {
@@ -137,7 +95,7 @@ where
 }
 
 #[inline]
-pub fn four_opt<T>(i: usize, j: usize, k: usize, l: usize, path: &mut Tour<T>) -> Option<f64>
+pub(crate) fn four_opt<T>(i: usize, j: usize, k: usize, l: usize, path: &mut Tour<T>) -> Option<f64>
 where
     T: Metrizable + Clone,
 {
@@ -148,7 +106,7 @@ where
     )
 }
 
-pub fn rand_index<T>(path: &Tour<T>) -> usize
+pub(crate) fn rand_index<T>(path: &Tour<T>) -> usize
 where
     T: Metrizable,
 {
@@ -158,8 +116,8 @@ where
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::common::Tour;
     use crate::point::Point;
+    use crate::Tour;
 
     #[test]
     fn test_two_opt() {
