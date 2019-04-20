@@ -1,6 +1,8 @@
 # tsp
 
-Library for traveling salesman problem algorithms.
+[![CircleCI](https://circleci.com/gh/stoksc/tsp-rs.svg?style=svg)](https://circleci.com/gh/stoksc/tsp-rs)
+
+Library for traveling salesman problem algorithms. 
 
 ## Example
 
