@@ -94,8 +94,13 @@ impl<T: Metrizable + Clone + Borrow<T>> Tour<T> {
     /// Returns the length of a tour.
     ///
     /// # Example
-    /// let tour = Tour::from(&some_points);
+    /// ```
+    /// use tsp_rs::Tour;
+    /// use tsp_rs::point::Point;
+    ///
+    /// let tour: Tour<Point> = Tour::new();
     /// let total_cost = tour.tour_len();
+    /// ```
     pub fn tour_len(&self) -> f64 {
         if self.path.len() <= 0 {
             return 0.;
