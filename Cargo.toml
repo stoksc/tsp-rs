@@ -1,6 +1,6 @@
 [package]
 name = "tsp-rs"
-license = "MIT1"
+license = "MIT"
 version = "0.1.0"
 authors = ["stoksc <stoksc.rs@gmail.com>"]
 description = "Traveling salesman problem algorithm implementations"
