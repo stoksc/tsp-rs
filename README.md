@@ -1,4 +1,4 @@
-# tsp-rs [![CircleCI](https://circleci.com/gh/stoksc/tsp-rs.svg?style=svg)](https://circleci.com/gh/stoksc/tsp-rs)
+# tsp-rs [![CircleCI](https://circleci.com/gh/stoksc/tsp-rs.svg?style=svg)](https://circleci.com/gh/stoksc/tsp-rs) ![crates.io](https://img.shields.io/crates/v/tsp-rs.svg)
 
 Library for traveling salesman problem algorithms. 
 
