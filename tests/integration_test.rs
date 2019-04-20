@@ -16,7 +16,7 @@ const EOF: &str = "EOF";
 #[test]
 fn test_solve() {
     for filename in &TEST_DATA_FILENAMES {
-        let n = 100;
+        let n = 1;
         let mut total = 0.;
         let mut best = std::f64::MAX;
         let mut worst = std::f64::MIN;
