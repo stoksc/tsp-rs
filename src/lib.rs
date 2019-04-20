@@ -14,7 +14,7 @@
 //!     Point::new(1., 1.),
 //! ];
 //!
-//! let mut tour = Tour::from(&tour);
+//! let mut tour = Tour::new(&tour);
 //!
 //! tour.optimize_kopt(std::time::Duration::from_secs(1));
 //! ```
@@ -50,22 +50,7 @@ pub struct Tour<T: Metrizable> {
 }
 
 impl<T: Metrizable + Clone + Borrow<T>> Tour<T> {
-    /// Returns a new, empty Tour<T>
-    ///
-    /// # Example
-    /// ```
-    /// use tsp_rs::Tour;
-    /// use tsp_rs::point::Point;
-    ///
-    /// let tour: Tour<Point> = Tour::new();
-    /// ```
-    pub fn new() -> Tour<T> {
-        Tour {
-            path: Vec::new() as Vec<T>,
-        }
-    }
-
-    /// Returns a tour from `nodes: Vec<T>` passed in where the tour
+    /// Returns a new tour from `nodes: Vec<T>` passed in where the tour
     /// is nodes[0] -> nodes[1] -> ... nodes[nodes.len() - 1] -> nodes[0]
     ///
     /// # Example
@@ -80,9 +65,9 @@ impl<T: Metrizable + Clone + Borrow<T>> Tour<T> {
     ///     Point::new(0., 1.),
     /// ];
     ///
-    /// let tour = Tour::from(&nodes);
+    /// let tour = Tour::new(&nodes);
     /// ```
-    pub fn from(nodes: &Vec<T>) -> Tour<T>
+    pub fn new(nodes: &Vec<T>) -> Tour<T>
     where
         T: Clone,
     {
@@ -98,7 +83,14 @@ impl<T: Metrizable + Clone + Borrow<T>> Tour<T> {
     /// use tsp_rs::Tour;
     /// use tsp_rs::point::Point;
     ///
-    /// let tour: Tour<Point> = Tour::new();
+    /// let nodes = vec![
+    ///     Point::new(0., 0.),
+    ///     Point::new(1., 0.),
+    ///     Point::new(1., 1.),
+    ///     Point::new(0., 1.),
+    /// ];
+    ///
+    /// let tour = Tour::new(&nodes);
     /// let total_cost = tour.tour_len();
     /// ```
     pub fn tour_len(&self) -> f64 {
@@ -132,7 +124,7 @@ impl<T: Metrizable + Clone + Borrow<T>> Tour<T> {
     ///     Point::new(0., 1.),
     /// ];
     ///
-    /// let mut tour = Tour::from(&nodes);
+    /// let mut tour = Tour::new(&nodes);
     ///
     /// tour.optimize_kopt(time::Duration::from_secs(1));
     /// ```
@@ -187,7 +179,7 @@ impl<T: Metrizable + Clone + Borrow<T>> Tour<T> {
     ///     Point::new(0., 1.),
     /// ];
     ///
-    /// let mut tour = Tour::from(&nodes);
+    /// let mut tour = Tour::new(&nodes);
     ///
     /// tour.optimize_nn();
     /// ```

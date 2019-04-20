@@ -121,14 +121,14 @@ mod tests {
 
     #[test]
     fn test_two_opt() {
-        let mut path = Tour::from(&vec![
+        let mut path = Tour::new(&vec![
             Point::new(0., 0.),
             Point::new(1., 1.),
             Point::new(1., 0.),
             Point::new(0., 1.),
         ]);
 
-        let two_opt_path = Tour::from(&vec![
+        let two_opt_path = Tour::new(&vec![
             Point::new(0., 0.),
             Point::new(1., 0.),
             Point::new(1., 1.),
